@@ -6,7 +6,7 @@ pic_height = 5
 
 class Pool:
     #Hyperparameters
-    fitness limit = 20
+    fitness_limit = 20
     num_critics = 10
     num_creators = 10
 
@@ -34,35 +34,81 @@ class Pool:
 
     def selection():
         # Get fittest creator
+        fittest_creator = creators.sorted(creators, key=lambda creator: creator.fitness)[-1]
         # Get second fittest creator
+        second_fittest_creator = creators.sorted(creators, key=lambda creator: creator.fitness)[-2]
         # Get fittest critic
+        fittest_critic = critics.sorted(critic, key=lambda critic: critic.fitness)[-1]
         # Get second fittest critic
+        second_fittest_critic = critics.sorted(critic, key=lambda critic: critic.fitness)[-2]
 
     def crossover():
         # Select a random crossover point for creators
+        crosspoint = random.nexInt(0, pic_width * pic_height)
+        for i in range(crosspoint):
+            temp = fittest_creator.genes[i]
+            fittest_creator.genes[i] = second_fittest_creator.genes[i]
+            second_fittest_creator.genes[i] = temp
+
         # Select a random crossover point for critics
-        8
+        crosspoint = random.nexInt(0, pic_width * pic_height)
+        for i in range(crosspoint):
+            temp = fittest_critic.genes[i]
+            fittest_critic.genes[i] = second_fittest_critic.genes[i]
+            second_fittest_critic.genes[i] = temp
+
     def mutation():
         # Select random mutation points for creators
+        mutationpoint = random.nexInt(0, pic_width * pic_height)
+
+        if fittest_creator.genes[mutationpoint] == 1:
+            fittest_creator.genes[mutationpoint] = 0
+        else:
+            fittest_creator.genes[mutationpoint] = 1
+
+        mutationpoint = random.nexInt(0, pic_width * pic_height)
+
+        if second_fittest_creator.genes[mutationpoint] == 1:
+            second_fittest_creator.genes[mutationpoint] = 0
+        else:
+            second_fittest_creator.genes[mutationpoint] = 1
         # Select random mutation points for critics
+        mutationpoint = random.nexInt(0, pic_width * pic_height)
+
+        if fittest_critic.genes[mutationpoint] == 1:
+            fittest_critic.genes[mutationpoint] = 0
+        else:
+            fittest_critic.genes[mutationpoint] = 1
+
+        mutationpoint = random.nexInt(0, pic_width * pic_height)
+
+        if second_fittest_critic.genes[mutationpoint] == 1:
+            second_fittest_critic.genes[mutationpoint] = 0
+        else:
+            second_fittest_critic.genes[mutationpoint] = 1
 
     def compute_fitness():
+        for creator in creators:
+            critique(critics)
+        for critics in critics:
+            converge(creators)
 
 class Creator:
     x = 0
     y = 0
-    seed = 0
+    genes = []
     fitness = 0
 
     def __init__(self):
-        self.seed = random.randint(0, pic_width * pic_height)
+        for i in range(pic_width * pic_height):
+            self.genes[i] = random.randint(0, 1)
 
     # Fills the scores array based on the input from each of criticsself.
     def critique(self, critics):
         for index, critic in enumerate(critics):
             score = 0
             for i in range(pic_width * pic_height):
-                if((critic.seed & (1<<i)) ^ (self.seed & (1<<i))):
+                if((critic.genes[i]) ^ (self.genes[i])):
                     score += 1
             critic.scores[index] = score
         self.fitness = sum(critic.scores)/len(critic.scores)
@@ -70,13 +116,14 @@ class Creator:
 class Critic:
     x = 0
     y = 0
-    seed = 0
+    genes = []
     fitness = 0
     scores = []
     inv_vars = []
 
     def __init__(self):
-        self.seed = random.randint(0, pic_width * pic_height)
+        for i in range(pic_width * pic_height):
+            self.genes[i] = random.randint(0, 1)
 
     def converge(self, creators):
         for index, creator in enumerate(creators):
@@ -97,9 +144,9 @@ if __name__ == "__main__":
         # Crossover
         pool.crossover()
         # Mutation
-        if(random.randint(0, 10) < 8) {
+        if random.randint(0, 10) < 8 :
             pool.mutation()
-        }
+    
         # Compute fitness
         pool.compute_fitness()
 
