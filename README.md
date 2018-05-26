@@ -7,4 +7,4 @@ The fitness function(s) are not correct. The creator fitness function averages s
 
 Output seems to work, but the average value sits around 0.5 forever because nothing updates.
 
-5/24/2018
+5/25/2018
