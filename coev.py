@@ -3,8 +3,8 @@ import copy
 import sys
 
 # Constants
-pic_width = 25
-pic_height = 25
+pic_width  = 5
+pic_height = 5
 
 class Creator:
     x = 0
@@ -18,13 +18,22 @@ class Creator:
 
     # Fills the scores array based on the input from each of criticsself.
     def critique(self, critics):
+        total_score = 0
         for index, critic in enumerate(critics):
             score = 0
             for i in range(pic_width * pic_height):
                 if((critic.genes[i]) ^ (self.genes[i])):
                     score += 1
             critic.scores[index] = score
-        self.fitness = sum(critic.scores)/len(critic.scores)
+            total_score += score 
+        self.fitness = total_score / len(critics)
+
+    def print(self):
+        for y in range(pic_height):
+            for x in range(pic_width):
+                char = '*' if self.genes[(x + y*pic_width)] > 0 else ' '
+                print(char, end='')
+            print()
 
 class Critic:
     x = 0
@@ -42,17 +51,24 @@ class Critic:
 
     def converge(self, creators):
         for index, creator in enumerate(creators):
-            if(self.scores[index] == creator.fitness):
-                self.inv_vars[index] = 25
+            if (self.scores[index] - creator.fitness)**2 < 1:
+                self.inv_vars[index] = 1
             else:
                 self.inv_vars[index] = 1/(self.scores[index] - creator.fitness)**2
-            self.fitness = sum(self.inv_vars)/len(self.inv_vars)
+            self.fitness = sum(self.inv_vars)
+    
+    def print(self):
+        for y in range(pic_height):
+            for x in range(pic_width):
+                char = '*' if self.genes[(x + y*pic_width)] > 0 else ' '
+                print(char, end='')
+            print()
 
 class Pool:
     #Hyperparameters
-    fitness_limit = 0.5
-    num_critics = 10
-    num_creators = 10
+    num_critics = 5
+    num_creators = 5
+    fitness_limit = (num_critics + pic_width * pic_height)*.9
 
     creators = []
     critics = []
@@ -159,7 +175,7 @@ class Pool:
             creator.critique(self.critics)
         for critic in self.critics:
             critic.converge(self.creators)
-        self.max_fitness = max(self.creators, key=lambda creator: creator.fitness).fitness
+        self.max_fitness = max(self.creators, key=lambda creator: creator.fitness).fitness + max(self.critics, key=lambda critic: critic.fitness).fitness
 
     # Helper functions
 
@@ -204,13 +220,19 @@ if __name__ == "__main__":
         # Compute fitness
         pool.compute_fitness()
 
-        print("Generation: " + str(pool.generation_count) + " Fittest: " + str(pool.max_fitness))
+        if pool.generation_count % 100 == 1 :
+
+            print("Generation: " + str(pool.generation_count))
+            print("Fittest Creator: " + str(pool.max_fitness))
+            pool.fittest_creator.print()
+
+            print("Fittest critic: " + str(pool.fittest_critic.fitness))
+            pool.fittest_critic.print()
+            # print("Critics:")
+            # for critic in pool.critics:
+            #     critic.print()
 
     # Print the result
     print("True art: ")
-    for y in range(pic_height):
-        for x in range(pic_width):
-            char = '*' if pool.fittest_creator.genes[(x + y*pic_width)] > 0 else ' '
-            print(char, end='')
-        print()
+    pool.fittest_creator.print()
     # Stop
