@@ -1,6 +1,7 @@
 import random
 import copy
 import sys
+import tensorflow as tf
 
 # Constants
 pic_width  = 5
@@ -25,7 +26,7 @@ class Creator:
                 if((critic.genes[i]) ^ (self.genes[i])):
                     score += 1
             critic.scores[index] = score
-            total_score += score 
+            total_score += score
         self.fitness = total_score / len(critics)
 
     def print(self):
@@ -56,7 +57,7 @@ class Critic:
             else:
                 self.inv_vars[index] = 1/(self.scores[index] - creator.fitness)**2
             self.fitness = sum(self.inv_vars)
-    
+
     def print(self):
         for y in range(pic_height):
             for x in range(pic_width):
