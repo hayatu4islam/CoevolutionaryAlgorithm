@@ -9,4 +9,6 @@ Improving algorithms to get more interesting results:
     - Add pooling like in a CNN so it is less general randomness and potentially less intense computationally for larger scales
     - Add printing functions for showing all current critics/creators in the pool side-by-side
 
-5/26/2018
+Fix github to track my commits right
+
+5/29/2018
